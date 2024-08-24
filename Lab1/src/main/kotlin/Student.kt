@@ -9,7 +9,5 @@ class Student(name: String, age: Int): Human(name, age) {
         val totalCredits = courses.sumOf { it.credits }
         return totalWeightedGrades/totalCredits
     }
-    fun minMaxGrades: Pair<Double,Double>{
-
-    }
+    fun minMaxGrades(): Pair<Double,Double> = Pair(courses.minOf { it.grade }, courses.maxOf { it.grade })
 }
