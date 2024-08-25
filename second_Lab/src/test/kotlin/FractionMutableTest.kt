@@ -1,4 +1,4 @@
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 internal class FractionMutableTest {
     @Test
@@ -52,3 +52,5 @@ internal class FractionMutableTest {
         assert(a.intPart() == 2)
     }
 }
+
+
