@@ -1,5 +1,10 @@
 class Lotto(private val n: Int, private val lottoRange: IntRange, secretNumbers: List<Int>? = null) {
     private val secretNumbers = secretNumbers  ?: pickNDistinct(lottoRange, n)
+
+    fun getN() = n
+    fun getLottoRange() = lottoRange
+    fun getSecretNumbers()= secretNumbers
+
     // returns a list with n distinct ints from range
     fun pickNDistinct(range: IntRange, n: Int): List<Int> {
         if(n>range.count()) return emptyList()
@@ -31,30 +36,5 @@ class Lotto(private val n: Int, private val lottoRange: IntRange, secretNumbers:
         return if (isLegalLottoGuess(guess)) numCommon(guess, secret) else 0
     }
 
-    companion object {
-        private val defaultLotto = Lotto(7, 1..40)
 
-        fun readNDistinct(low: Int, high: Int, n: Int): List<Int> {
-            println("Enter $n distinct numbers (range $low to $high), separated by commas:")
-            val input = readLine() ?: return emptyList()
-            return input.split(",")
-                .mapNotNull { it.trim().toIntOrNull() }
-                .filter { it in low..high }
-                .distinct()
-                .take(n)
-        }
-        fun playLotto() {
-            while (true) {
-                val userGuess = readNDistinct(1, 40, 7)
-                val correctGuesses = defaultLotto.checkGuess(userGuess)
-                println("You guessed $correctGuesses number(s) correctly.")
-
-                println("Play another round? (yes/no)")
-                if (readLine()?.trim()?.lowercase() != "yes") {
-                    println("Thank you for playing!")
-                    break
-                }
-            }
-        }
-    }
 }
