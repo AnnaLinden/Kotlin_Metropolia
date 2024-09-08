@@ -1,39 +1,54 @@
-class Fraction(private val numerator: Int, private val denominator: Int, private val sign: Int = 1) : Comparable<Fraction> {
+class Fraction(numerator: Int, denominator: Int, val sign: Int = 1) {
+
+    var numerator = numerator
+        private set
+    var denominator = denominator
+        private set
 
     init {
-        if (denominator == 0) throw IllegalArgumentException("Denominator cannot be zero")
+        normalize()
     }
 
-    private val simplifiedNumerator: Int
-    private val simplifiedDenominator: Int
-    private val finalSign: Int
+    fun add(fraction: Fraction): Fraction {
+        val lcd = lcd(fraction)
+        val num1 = numerator * lcd / denominator
+        val num2 = fraction.numerator * lcd / fraction.denominator
 
-    init {
-        var n = numerator
-        var d = denominator
-        var s = sign
+        val resNum = sign * num1 + fraction.sign * num2
+        val resSign = if (resNum < 0) -1 else 1
+        val resDen = lcd
 
-        if (d < 0) {
-            d *= -1
-            s *= -1
-        }
+        return Fraction(kotlin.math.abs(resNum), resDen, resSign)
+    }
 
-        val gcd = gcd(n, d)
-        n /= gcd
-        d /= gcd
-        if (n < 0) {
-            n *= -1
-            s *= -1
-        }
+    fun mult(fraction: Fraction): Fraction {
+        val resNum = numerator * fraction.numerator
+        val resDen = denominator * fraction.denominator
+        val resSign = sign * fraction.sign
+        return Fraction(resNum, resDen, resSign)
+    }
 
-        simplifiedNumerator = n
-        simplifiedDenominator = d
-        finalSign = s
+    operator fun div(fraction: Fraction): Fraction {
+        return mult(Fraction(fraction.denominator, fraction.numerator, fraction.sign))
+    }
+
+    fun negate(): Fraction {
+        return Fraction(numerator, denominator, sign * -1)
+    }
+
+    private fun lcd(fraction: Fraction): Int {
+        return denominator * fraction.denominator / gcd(denominator, fraction.denominator)
+    }
+
+    private fun normalize() {
+        val gcd = gcd(numerator, denominator)
+        numerator /= gcd
+        denominator /= gcd
     }
 
     private fun gcd(a: Int, b: Int): Int {
-        var x = a
-        var y = b
+        var x = kotlin.math.abs(a)
+        var y = kotlin.math.abs(b)
         while (y != 0) {
             val temp = y
             y = x % temp
@@ -42,67 +57,33 @@ class Fraction(private val numerator: Int, private val denominator: Int, private
         return x
     }
 
-    // New mult method
-    fun mult(other: Fraction): Fraction {
-        val newNumerator = simplifiedNumerator * other.simplifiedNumerator * finalSign * other.finalSign
-        val newDenominator = simplifiedDenominator * other.simplifiedDenominator
-        return Fraction(newNumerator, newDenominator)
-    }
-
-    operator fun unaryMinus(): Fraction {
-        return Fraction(simplifiedNumerator, simplifiedDenominator, -finalSign)
-    }
-
-    operator fun plus(other: Fraction): Fraction {
-        val commonDenominator = simplifiedDenominator * other.simplifiedDenominator
-        val newNumerator = finalSign * simplifiedNumerator * other.simplifiedDenominator +
-                other.finalSign * other.simplifiedNumerator * simplifiedDenominator
-        return Fraction(newNumerator, commonDenominator)
-    }
-
-    operator fun minus(other: Fraction): Fraction {
-        return this + -other
-    }
-
-    operator fun times(other: Fraction): Fraction {
-        return mult(other)  // Use the mult method for multiplication
-    }
-
-    operator fun div(other: Fraction): Fraction {
-        return this * Fraction(other.simplifiedDenominator, other.simplifiedNumerator, other.finalSign)
-    }
-
-    fun negate(): Fraction {
-        return Fraction(simplifiedNumerator, simplifiedDenominator, -finalSign)
-    }
-
-    fun add(other: Fraction): Fraction {
-        return this + other
-    }
-
     override fun toString(): String {
-        return if (simplifiedDenominator == 1) {
-            "${simplifiedNumerator * finalSign}/1"
-        } else {
-            if (finalSign == -1) "-$simplifiedNumerator/$simplifiedDenominator" else "$simplifiedNumerator/$simplifiedDenominator"
-        }
+        return if (sign < 0) "-$numerator/$denominator" else "$numerator/$denominator"
     }
 
-    override fun compareTo(other: Fraction): Int {
-        val leftValue = finalSign * simplifiedNumerator * other.simplifiedDenominator
-        val rightValue = other.finalSign * other.simplifiedNumerator * simplifiedDenominator
-        return leftValue.compareTo(rightValue)
+    operator fun unaryMinus(): Fraction = negate()
+
+    operator fun plus(fraction: Fraction): Fraction = add(fraction)
+
+    operator fun minus(fraction: Fraction): Fraction = add(-fraction)
+
+    operator fun times(fraction: Fraction): Fraction = mult(fraction)
+
+    operator fun compareTo(fraction: Fraction): Int {
+        if (sign < fraction.sign) {
+            return -1
+        } else if (sign > fraction.sign) {
+            return 1
+        }
+
+        val lcd = lcd(fraction)
+        val num1 = numerator * lcd / denominator
+        val num2 = fraction.numerator * lcd / fraction.denominator
+        return num1 - num2
     }
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
         if (other !is Fraction) return false
-        return simplifiedNumerator == other.simplifiedNumerator &&
-                simplifiedDenominator == other.simplifiedDenominator &&
-                finalSign == other.finalSign
-    }
-
-    override fun hashCode(): Int {
-        return 31 * simplifiedNumerator + 31 * simplifiedDenominator + finalSign
+        return compareTo(other) == 0
     }
 }
