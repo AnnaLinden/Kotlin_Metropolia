@@ -1,0 +1,27 @@
+# Ignore Gradle files
+.gradle/
+build/
+**/build/
+gradle/
+gradlew
+gradlew.bat
+
+# Ignore IntelliJ IDEA project files
+.idea/
+
+# Ignore test reports
+**/test-results/
+**/reports/
+Test Results - FractionMutableTest.html
+
+# Ignore other IDE specific files
+*.iml
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore build output directories for each module
+Lab1/build/
+Lab3/build/
+Lab4/build/
+second_Lab/build/
